@@ -13,10 +13,6 @@ esphome:
     name: Screek.Human_Presence_Sensor
     version: 2A
   on_boot:
-    - priority: 100
-      then:
-        lambda: |-
-          id(cpu_speed) = ESP.getCpuFreqMHz();
     - priority: -200
       then:
         lambda: |-
@@ -27,26 +23,13 @@ esphome:
 
 preferences:
     flash_write_interval: 5s
-
-external_components:
-  - source:
-      type: git
-      url: https://github.com/screekworkshop/custom_components_support_for_screek_2a
-      ref: main
-    components: [uart]
   
 esp32:
   board: lolin_c3_mini
   framework:
-    type: arduino
-    version: 2.0.9
-    platform_version: 6.3.0
+    type: esp-idf
 
 globals:
-  - id: cpu_speed
-    type: int
-    restore_value: no
-    initial_value: '0'
   - id: last_update_ld2450
     type: unsigned long
     restore_value: no
@@ -649,20 +632,9 @@ script:
           id(tips_zone_ex1_conf).publish_state("Zone Exclusion 1");
 
 sensor:
-  - platform: template
-    name: "ESP CPU Speed"
-    accuracy_decimals: 0
-    icon: mdi:cpu-32-bit
-    unit_of_measurement: Mhz
-    disabled_by_default: True
-    lambda: |-
-      return (id(cpu_speed));
-    entity_category: "diagnostic"
-    update_interval: 600s
-  - platform: template
+  - platform: internal_temperature
     id: sys_esp_temperature
     name: ESP Temperature
-    lambda: return temperatureRead();
     unit_of_measurement: °C
     device_class: TEMPERATURE
     update_interval: 45s
