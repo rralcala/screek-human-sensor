@@ -9,7 +9,7 @@ If you would like to purchase one of our DIY products, or take a look at our doc
 https://www.screek.io/  
 
 Our Store:
-https://store.screek.io
+https://shop.screek.io
 
 Our eBay Store:  
 https://www.ebay.com/str/screekworkshop  
