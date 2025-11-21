@@ -59,14 +59,21 @@ api:
 ota:
   - platform: esphome
     # use your own ota password plz. this is a words by Socrates.
-    password: "all-things-in-their-being-are-good-for-something"
+    password: !secret key
 
 safe_mode:
   disabled: True
 
 wifi:
+  ssid: Link
+  password: !secret wifi_password
   power_save_mode: LIGHT
   reboot_timeout: 10min
+  manual_ip:
+    static_ip: !secret ip_address
+    gateway: !secret gateway_ip
+    subnet: !secret netmask
+    dns1: !secret gateway_ip
   ap:
     ssid: "HUMAN-SENSOR 2A"
 
@@ -861,6 +868,10 @@ output:
       ignore_pin_validation_error: true
 
 switch:
+  - platform: gpio
+    name: "Light"
+    pin: GPIO1
+
   - platform: factory_reset
     name: Factory Reset
     disabled_by_default: True
