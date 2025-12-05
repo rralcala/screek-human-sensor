@@ -55,7 +55,7 @@ debug:
   update_interval: 30s
 
 api:
-
+  reboot_timeout: 0s
 ota:
   - platform: esphome
     # use your own ota password plz. this is a words by Socrates.
@@ -65,7 +65,7 @@ safe_mode:
   disabled: True
 
 wifi:
-  ssid: Link
+  ssid: Mbarakaja
   password: !secret wifi_password
   power_save_mode: LIGHT
   reboot_timeout: 10min
@@ -508,7 +508,7 @@ binary_sensor:
     id: ink_ha_connected
   - platform: template
     name: "Any Presence"
-    id: any_target_exsits
+    id: any_target_exists
     device_class: occupancy
     filters:
       - delayed_off: !lambda |-
@@ -516,6 +516,22 @@ binary_sensor:
             return 0;
           };
           return id(any_presence_timeout).state * 1000.0;
+    on_state:
+      - then:
+          - if:
+              # Add condition for time of day (e.g., only turn on if it's dark) or current light state
+              condition:
+                # Example: Only turn on if light is currently off
+                - binary_sensor.is_on: any_target_exists
+              then:
+                - light.turn_on: room_light
+      - then:
+          - if:
+              condition:
+                # Example: Only turn off if the light is currently on
+                - binary_sensor.is_off: any_target_exists
+              then:
+                - light.turn_off: room_light
   - platform: template
     name: "Zone1 Presence"
     id: zone1_target_exsits
@@ -842,7 +858,14 @@ sensor:
     unit_of_measurement: 'º'
     icon: mdi:angle-acute
 
+
+
 light:
+  - platform: binary
+    pin:
+      pin: GPIO1
+    name: "Bath Light"
+    id: room_light
   - platform: status_led
     name: sys_status
     pin: 
@@ -862,16 +885,14 @@ time:
 
 output:
   - platform: gpio
+    id: light_output_pin
+  - platform: gpio
     id: board_info_ed
     pin: 
       number: GPIO12
       ignore_pin_validation_error: true
 
 switch:
-  - platform: gpio
-    name: "Light"
-    pin: GPIO1
-
   - platform: factory_reset
     name: Factory Reset
     disabled_by_default: True
@@ -1284,9 +1305,9 @@ uart:
           
           if (id(all_target_count).state != all_target_counts){
             id(all_target_count).publish_state(all_target_counts);
-            id(any_target_exsits).publish_state(has_target_in_zone_all);
-          }else if (id(any_target_exsits).state != has_target_in_zone_all){
-            id(any_target_exsits).publish_state(has_target_in_zone_all);
+            id(any_target_exists).publish_state(has_target_in_zone_all);
+          }else if (id(any_target_exists).state != has_target_in_zone_all){
+            id(any_target_exists).publish_state(has_target_in_zone_all);
           }
 
           if (id(zone1_target_count).state != target_count_in_zone1){
